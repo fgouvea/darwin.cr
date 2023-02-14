@@ -1,0 +1,9 @@
+name: darwin
+version: 0.1.0
+
+authors:
+  - Fernando Gouvêa <fernandosrg1@gmail.com>
+
+crystal: 1.7.2
+
+license: GPU GPL v3.0
