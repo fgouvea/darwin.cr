@@ -1,4 +1,4 @@
-require "./darwin/engine"
+require "./darwin/**"
 
 module Darwin
 end
