@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Alphabet
+
 describe StubAlphabet do
     describe "#random_gene" do
         it "returns genes in the order they appear in new" do

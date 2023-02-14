@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Post
+
 describe StubProcessor do
     describe "#process" do
         it "should just count number of calls" do

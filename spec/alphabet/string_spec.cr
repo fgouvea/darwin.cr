@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Alphabet
+
 describe StringAlphabet do
     describe "#random_gene" do
         it "returns a gene according to the RNG that is a character on the string" do

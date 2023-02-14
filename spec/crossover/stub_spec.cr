@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Crossover
+
 describe StubCrossover do
     describe "#crossover" do
     

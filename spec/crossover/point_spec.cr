@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Crossover
+
 describe PointCrossover do
     describe "#crossover" do
         it "should copy from one parent 1 to the random point and then from parent 2" do

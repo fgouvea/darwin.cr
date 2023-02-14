@@ -1,5 +1,8 @@
 require "../spec_helper"
 
+include Darwin::Mutation
+include Darwin::Alphabet
+
 describe SimpleMutator do
     describe "#mutate" do
     

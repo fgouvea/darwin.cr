@@ -1,5 +1,5 @@
 require "spec"
-require "../src/**"
+require "../src/darwin/**"
 
 class MockRandom
     include Random

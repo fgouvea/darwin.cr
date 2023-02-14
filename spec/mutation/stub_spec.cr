@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Mutation
+
 describe StubMutator do
     describe "#mutate" do
     

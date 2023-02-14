@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Crossover
+
 describe UniformCrossover do
     describe "#crossover" do
         it "should copy from either parent according to RNG" do

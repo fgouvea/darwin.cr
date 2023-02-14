@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Alphabet
+
 describe ArrayAlphabet do
     describe "#random_gene" do
         it "returns a gene according to the RNG" do

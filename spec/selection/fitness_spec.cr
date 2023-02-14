@@ -1,5 +1,8 @@
 require "../spec_helper"
 
+include Darwin
+include Selection
+
 describe FitnessSelector do
     describe "#select_mates" do
 

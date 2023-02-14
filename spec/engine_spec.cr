@@ -1,12 +1,20 @@
 require "./spec_helper"
 
-describe Darwin do
+include Darwin
+include Alphabet
+include Evaluation
+include Selection
+include Crossover
+include Mutation
+include Post
+
+describe Engine do
     describe "#initialize" do
         it "should generate random population of the size specified in the config" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
 
-            engine = Darwin.new(config: config, evaluation: StubEvaluator(Int32).new())
+            engine = Engine.new(config: config, evaluation: StubEvaluator(Int32).new())
 
             expected_dnas = [[1, 2, 3],
                             [4, 5, 6],
@@ -21,9 +29,9 @@ describe Darwin do
 
         it "shouldn't eval population on new" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
 
-            engine = Darwin.new(config: config, evaluation: StubEvaluator(Int32).new())
+            engine = Engine.new(config: config, evaluation: StubEvaluator(Int32).new())
 
             engine.population.each do |genome|
                 genome.fitness.should eq 0.0
@@ -34,9 +42,9 @@ describe Darwin do
     describe "#evaluate_population" do
         it "should call evaluator for every individual on the population" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
-            engine = Darwin.new(config: config, evaluation: evaluator)
+            engine = Engine.new(config: config, evaluation: evaluator)
 
             engine.evaluate_population()
 
@@ -49,9 +57,9 @@ describe Darwin do
 
         it "should sort population based on fitness from highest to lowest" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(evaluations: [45.6, 7.89, 123.0])
-            engine = Darwin.new(config: config, evaluation: evaluator)
+            engine = Engine.new(config: config, evaluation: evaluator)
 
             engine.evaluate_population()
 
@@ -66,12 +74,12 @@ describe Darwin do
     describe "#generate_new_population" do
         it "should call the selector for every member of the new population" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
             selector = StubSelector(Int32).new
             crossover = StubCrossover(Int32).new
             mutator = StubMutator(Int32).new
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
             
             engine.evaluate_population
             engine_population = engine.population
@@ -83,14 +91,14 @@ describe Darwin do
 
         it "should call crossover with the results from the selector" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
             crossover = StubCrossover(Int32).new
             mutator = StubMutator(Int32).new
 
             selector = StubSelector(Int32).new(selection_ids: [{1, 2}, {2, 0}, {1, 0}])
 
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
             engine.evaluate_population
 
             engine.generate_new_population
@@ -104,14 +112,14 @@ describe Darwin do
 
         it "should call mutation with the results from the crossover" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
             selector = StubSelector(Int32).new
             mutator = StubMutator(Int32).new
 
             crossover = StubCrossover(Int32).new(crossover_results: [[0, 0, 0], [1, 1, 1], [2, 2, 2]])
             
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
             engine.evaluate_population
 
             engine.generate_new_population
@@ -121,14 +129,14 @@ describe Darwin do
 
         it "should preserve fittest individuals when elitism is on" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3, elitism: 1)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3, elitism: 1)
             selector = StubSelector(Int32).new
             crossover = StubCrossover(Int32).new
             
             evaluator = StubEvaluator(Int32).new(evaluations: [1.0, 9.0, 1.0]) # Genome [4, 5, 6] with a higher fitness
             mutator = StubMutator(Int32).new(mutation_results: [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
             
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
             engine.evaluate_population
 
             engine.generate_new_population
@@ -138,14 +146,14 @@ describe Darwin do
 
         it "should preserve multiple fittest individuals when elitism is > 1" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3, elitism: 2)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3, elitism: 2)
             selector = StubSelector(Int32).new
             crossover = StubCrossover(Int32).new
             
             evaluator = StubEvaluator(Int32).new(evaluations: [3.0, 9.0, 1.0]) # Genome [4, 5, 6] > Genome [1, 2, 3] > Genome [7, 8, 9]
             mutator = StubMutator(Int32).new(mutation_results: [[0, 0, 0], [0, 0, 0], [0, 0, 0]])
             
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
             engine.evaluate_population
 
             engine.generate_new_population
@@ -158,14 +166,14 @@ describe Darwin do
     describe "#run" do
         it "should call the operators and evaluate population afterwards" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
             selector = StubSelector(Int32).new
             crossover = StubCrossover(Int32).new
             
             mutator = StubMutator(Int32).new(mutation_results: [[1, 1, 1], [2, 2, 2], [3, 3, 3]])
             
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
             engine.evaluate_population
             evaluator.calls = [] of Array(Int32) # Reset evaluator calls so we only have to assert the ones we want
             evaluator.evaluations = [13.0, 21.0, 12.3]
@@ -185,14 +193,14 @@ describe Darwin do
 
         it "should evaluate population first if it hasn't been evaluated yet" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
             selector = StubSelector(Int32).new
             crossover = StubCrossover(Int32).new
             
             mutator = StubMutator(Int32).new(mutation_results: [[1, 1, 1], [2, 2, 2], [3, 3, 3]])
 
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
 
             engine.run
 
@@ -204,12 +212,12 @@ describe Darwin do
 
         it "should increment generation counter" do
             alphabet = StubAlphabet.new([1, 2, 3, 4, 5, 6, 7, 8, 9])
-            config = GAConfig.new(alphabet: alphabet, genome_length: 3, population_size: 3)
+            config = Config.new(alphabet: alphabet, genome_length: 3, population_size: 3)
             evaluator = StubEvaluator(Int32).new(default_evaluation: 80.0)
             selector = StubSelector(Int32).new
             crossover = StubCrossover(Int32).new
             mutator = StubMutator(Int32).new()
-            engine = Darwin.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
+            engine = Engine.new(config: config, evaluation: evaluator, selection: selector, crossover: crossover, mutation: mutator)
 
             engine.generation.should eq 1
 

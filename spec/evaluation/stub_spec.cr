@@ -1,5 +1,7 @@
 require "../spec_helper"
 
+include Darwin::Evaluation
+
 describe StubEvaluator do
     describe "#evaluate" do
         it "should return evaluations in the order they were given" do

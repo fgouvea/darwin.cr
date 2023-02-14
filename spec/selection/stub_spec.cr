@@ -1,5 +1,8 @@
 require "../spec_helper"
 
+include Darwin
+include Selection
+
 describe StubSelector do
     describe "#select_mates" do
 
