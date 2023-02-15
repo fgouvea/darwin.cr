@@ -106,6 +106,43 @@ The fields that can be read from the `engine` object are:
 * * `dna : Array(T)` - the gene array that defines the individual.
 * * `fitness : Float64` - the fitness value calculated for the individual by the `Evaluator`.
 
+### Alphabet
+
+An alphabet is a collection of possible genes that can constitute the genomes in the GA.
+
+It is important to note that the type of the genes is generic in the base `Alphabet(T)` class, and the choice of type here will determine the type `T` in all other generic classes of this library. For example, if you are working with an `Alphabet(Int32)`, your crossover operators will be an implementation of `Crossover(Int32)`.
+
+The alphabets provided by this lib are:
+
+* `Darwin::Alphabet::IntAlphabet` - an alphabet where any `Int32` can be a gene. Acceppts parameters `min` and `max` to control the range of integers allowed.
+* `Darwin::Alphabet::ArrayAlphabet(T)` -  has an array of objects of type `T` that act as a gene in the genome.
+* `Darwin::Alphabet::StringAlphabet` - an easier way of making an `ArrayAlphabet(Char)` from a string. Initialized as `StringAlphabet.new(alphabet: "abcd...").
+
+Examples:
+
+```crystal
+i_alph = Darwin::Alphabet::IntAlphabet.new(min: 0, max: 9) # IntAlphabet < Alphabet(Int32)
+
+a_alph = Darwin::Alphabet::ArrayAlphabet(String).new(genes: ["gene1", "gene2", "gene3"]) # ArrayAlphabet(String) < Alphabet(String)
+
+s_alph = Darwin::Alphabet::StringAlphabet.new(alphabet: "qwerty") # StringAlphabet < ArrayAlphabet(Char) < Alphabet(Char)
+
+
+i_alph.random_gene #=> ex: 5
+a_alph.random_gene #=> ex: "gene3"
+s_alph.random_gene #=> ex: 'w'
+```
+
+However, you may also implement your own `Alphabet` and pass it when instantiating the `config` file. You can do this by implementing:
+
+```crystal
+abstract class Alphabet(T)
+    abstract def random_gene() : T
+end
+```
+
+This `random_gene()` method is used by the `Engine` to instantiate the initial population, as well as by the mutator to alter genes in a genome.
+
 ### Selection
 
 The selection operator is responsible for - given a population of individual genomes - selecting two genomes to be combined to produce a new genome for the next population.
