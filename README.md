@@ -9,7 +9,7 @@ A genetic algorithm Crystal library that aims to be simple, but highly customiza
    ```yaml
    dependencies:
      darwin:
-       github: fgouvea/darwin
+       github: fgouvea/darwin.cr
    ```
 
 2. Run `shards install`
