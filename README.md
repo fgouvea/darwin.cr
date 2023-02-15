@@ -117,9 +117,9 @@ However, you may also implement your own `Selector` and pass it when instantiati
 A `Selector` has to implement:
 
 ```crystal
-  abstract class SelectionOperator(T)
-      abstract def select_mates(genomes : Array(Darwin::Genome(T))) : Tuple(Darwin::Genome(T), Darwin::Genome(T))
-  end
+abstract class SelectionOperator(T)
+    abstract def select_mates(genomes : Array(Darwin::Genome(T))) : Tuple(Darwin::Genome(T), Darwin::Genome(T))
+end
 ```
 
 Please note that unlike the other operators, the selection operator receives the `Darwin::Genome` object (described in the _Engine_ section above), so that it can have access to the fitness of the individuals, which is important for this operation.
@@ -135,12 +135,12 @@ The implementations provided out of the box by this library are:
 
 If no crossover operator is passed to the `engine` object, it will use `PointCrossover`.
 
-However, you may also implement your own `Crossover` and pass it when instantiating the `engine`.
+However, you may also implement your own `Crossover` by implementing:
 
 ```crystal
-  abstract class CrossoverOperator(T)
-      abstract def crossover(genome1 : Array(T), genome2 : Array(T)) : Array(T)
-  end
+abstract class CrossoverOperator(T)
+    abstract def crossover(genome1 : Array(T), genome2 : Array(T)) : Array(T)
+end
 ```
 
 ### Mutation
@@ -156,9 +156,40 @@ mutator = Darwin::Mutation::SimpleMutator(alphabet: config.alphabet, probability
 engine = Darwin::Engine.new(..., mutation: mutator)
 ```
 
+However, you may also implement your own `Mutator` by implementing:
+```crystal
+abstract class MutationOperator(T)
+    abstract def mutate(genome : Array(T)) : Array(T)
+end
+```
+
 ## Development
 
-TODO: Write development instructions here
+Different operator implementations should be added to their respective folders and namespaces. For example, a new `Mutator` should go inside the `src/darwin/mutation` folder and be declared inside the `Darwin::Mutation` namespace.
+
+As many things in the GA involve randomness, a mock of sorts of the `Random` class is provided in `spec/spec_helper.cr`, allowing us to define a sequence of results for the random methods:
+
+```crystal
+  rng = MockRandom(random_ints: [3, 2, 0])
+
+  rng.rand(0...10) #=> 3
+  rng.rand(0...10) #=> 2
+  rng.rand(0...10) #=> 0
+  rng.rand(0...10) #=> IndexError
+```
+
+Every class that has a random operation receives an optional `rng` parameter on initialization, which we can use to pass the `MockRandom` instance.
+
+Also, every operator has a `Stub` class that will return static results passed to it, as well as recording the parameters of the calls it received. Example:
+
+```crystal
+m = Darwin::Mutation::StubMutator(mutation_results: [[0, 0 ,0], [1, 1, 1], [2, 2, 2]])
+
+m.mutate([1, 2, 3]) #=> [0, 0, 0]
+m.mutate([4, 5, 6]) #=> [1, 1, 1]
+
+m.calls #=> [[1, 2, 3], [4, 5, 6]]
+```
 
 ## Contributing
 
