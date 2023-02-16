@@ -3,8 +3,24 @@ require "../genome"
 
 module Darwin::Selection
     
+    # A basic implementation of the `SelectionOperator` in which the probability of a genome being selected
+    # is its fitness in relation to the total fitness of the population (fitness / total_fitness)
+    #
+    # Ex:
+    # ```markdown
+    # | Genome | Fitness | Probability |   Calculation    |
+    # |--------|---------|-------------|------------------|
+    # |   A    |   1.0   |     17%     | 1.0 / 6.0 = 0.17 |
+    # |   B    |   3.0   |     50%     | 3.0 / 6.0 = 0.5  |
+    # |   C    |   2.0   |     33%     | 2.0 / 6.0 = 0.33 |
+    # ```
+    #
+    # The generic `T` type refers to the type of a gene in the implementation.
     class FitnessSelector(T) < SelectionOperator(T)
         
+        # Default constructor.
+        #
+        # A custom `Random` object can be passed as the `rng` parameter.
         def initialize(@rng : Random = Random.new)
         end
 
