@@ -230,7 +230,7 @@ m.calls #=> [[1, 2, 3], [4, 5, 6]]
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/darwin/fork>)
+1. Fork it (<https://github.com/fgouvea/darwincr/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -238,4 +238,4 @@ m.calls #=> [[1, 2, 3], [4, 5, 6]]
 
 ## Contributors
 
-- [Fernando Gouvêa](https://github.com/your-github-user) - creator and maintainer
+- [Fernando Gouvêa](https://github.com/fgouvea) - creator and maintainer
